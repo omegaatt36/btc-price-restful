@@ -1,0 +1,27 @@
+@startuml get_remote_price
+boundary Server <<router>>
+control ticker <<timer>> 
+control controller
+entity dbi
+database DB
+collections price <<collection>>
+actor "remote API" as remote
+
+create ticker
+Server -> ticker : create ticker
+activate ticker
+loop
+    ticker -> controller : call remote API
+    controller -> remote : http request
+    remote --> controller
+    alt success 
+        controller -> dbi : Update
+        dbi -> DB : UpdateOne
+        DB -> price
+        DB --> dbi
+        dbi --> controller
+    else do nothing
+    end
+    ticker -> ticker : wait for next
+end
+@enduml

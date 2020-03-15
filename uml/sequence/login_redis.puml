@@ -1,0 +1,36 @@
+@startuml login_redis
+actor User
+boundary Server <<router>>
+control controller <<handler>>
+entity redis <<caching>>
+control auth
+entity dbi
+database DB
+collections user <<collection>>
+
+User -> Server : http request POST\nlogin
+Server -> controller : get userData
+controller -> dbi : Find
+dbi -> DB : FindOne
+DB -> user
+DB --> dbi
+alt exist case
+    dbi --> controller
+
+    controller -> redis : get cache token
+    alt exist case
+        redis --> controller : return exitst token
+    else not found
+        redis --> controller 
+        controller -> auth : generate token
+        auth --> controller
+        controller -> redis : set
+    end
+    controller --> Server : JWT
+    Server --> User : http responce/200
+else not found
+    dbi --> controller
+    controller --> Server
+    Server --> User : http responce/400
+end
+@enduml

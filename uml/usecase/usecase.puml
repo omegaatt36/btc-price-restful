@@ -1,0 +1,19 @@
+@startuml usecase
+left to right direction
+skinparam packageStyle rectangle
+
+:User: as User
+:remote api(s): as remote
+
+rectangle server {
+    (get BTC/USD price) as Ticker <<timer>>>
+    (get latest price) as Get
+    (register) as Register
+    (login) as Login
+}
+
+User -- Register 
+User -- Login : get Auth
+User -- Get : with Auth
+Ticker --  remote
+@enduml

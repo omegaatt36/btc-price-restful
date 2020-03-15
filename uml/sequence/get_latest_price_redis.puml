@@ -1,0 +1,34 @@
+@startuml get_latest_price_redis
+actor User
+boundary Server <<router>>
+control auth <<middleware>>
+control controller <<handler>>
+entity redis <<caching>>
+entity dbi
+database DB
+collections price <<collection>>
+
+User -> Server : http request POST\nget latest price
+Server -> auth : verify auth
+alt verify successed
+    auth --> Server
+    Server -> controller : get price
+    controller -> redis : get cache price
+    alt exist case
+        redis --> controller : return exitst price
+    else not found
+        redis --> controller 
+        controller -> dbi : Find
+        dbi -> DB : FindOne
+        DB -> price
+        DB --> dbi
+        dbi --> controller
+        controller -> redis : set
+    end
+    controller --> Server : price data
+    Server --> User : http responce/200
+else verify failed
+    auth --> Server
+    Server --> User : http responce/401
+end
+@enduml

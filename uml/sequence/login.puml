@@ -1,0 +1,27 @@
+@startuml login
+actor User
+boundary Server <<router>>
+control controller <<handler>>
+control auth
+entity dbi
+database DB
+collections user <<collection>>
+
+User -> Server : http request POST\nlogin
+Server -> controller : get userData
+controller -> dbi : Find
+dbi -> DB : FindOne
+DB -> user
+DB --> dbi
+alt exist case
+    dbi --> controller
+    controller -> auth : generate token
+    auth --> controller
+    controller --> Server : JWT
+    Server --> User : http responce/200
+else not found
+    dbi --> controller
+    controller --> Server
+    Server --> User : http responce/400
+end
+@enduml
