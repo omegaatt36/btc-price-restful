@@ -1,0 +1,17 @@
+@startuml register
+actor User
+boundary Server <<router>>
+control controller <<handler>>
+entity dbi
+database DB
+collections user <<collection>>
+
+User -> Server : http request POST/register
+Server -> controller : Register
+controller -> dbi : Create
+dbi -> DB : Insert
+DB -> user
+controller --> Server 
+Server --> User : http responce
+
+@enduml
