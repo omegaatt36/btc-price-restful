@@ -127,3 +127,34 @@ func TestGetDefault(t *testing.T) {
 		})
 }
 ```
+
+### database
+
+All of result data which will be responsed by romote API server have simple structure. Just key-value JSON. So I choose NoSQL database official [`mongodb`](https://github.com/mongodb/mongo-go-driver) package to make storage.
+
+You can use context to ensure the gorutine context will end at the same time. If the mongodb can't connect, the program will fatal error and exit.
+
+```go
+ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
+// ensure cancle function will be executed
+defer cancle() 
+client, err := mongo.Connect(ctx, clientOptions())
+if err != nil {
+	l.Fatal(err) // l for logrus
+}
+db.SetClint(client)
+```
+
+the clientOptions is for docker, can set parameter for different env in dockerfile or docker-compose file.
+
+```go
+func clientOptions() *options.ClientOptions {
+	host := "db"
+	if os.Getenv("profile") != "prod" {
+		host = "localhost"
+	}
+	return options.Client().ApplyURI(
+		"mongodb://" + host + ":27017",
+	)
+}
+```
