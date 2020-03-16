@@ -158,3 +158,16 @@ func clientOptions() *options.ClientOptions {
 	)
 }
 ```
+
+### Register & Login
+
+Using [`crypto/bcrypt`](https://godoc.org/golang.org/x/crypto/bcrypt) to encode password. Then save them into database. When user login, generate the JSON-Web-Token via [`dgrijalva/jwt-go`](https://github.com/dgrijalva/jwt-go). User can use this token to access service.
+
+```go
+func GenerateToken(user *models.User) (string, error) {
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
+		"user_name": user.UserName,
+	})
+	return token.SignedString(secret)
+}
+```

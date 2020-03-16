@@ -17,8 +17,6 @@ import (
 )
 
 func main() {
-
-	host := "127.0.0.1"
 	port := "8080"
 
 	/* create logger */
@@ -44,11 +42,11 @@ func main() {
 
 	/* Create the main server object */
 	server := http.Server{
-		Addr:    fmt.Sprintf("%s:%s", host, port),
+		Addr:    fmt.Sprintf(":%s", port),
 		Handler: n,
 	}
 
-	logrus.Println(fmt.Sprintf("Run the web server at %s:%s", host, port))
+	logrus.Println(fmt.Sprintf("Run the web server at :%s", port))
 	logrus.Fatal(server.ListenAndServe())
 }
 

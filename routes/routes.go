@@ -18,6 +18,9 @@ var routes []route
 
 func init() {
 	register("GET", "/", controllers.GetDefault, nil)
+
+	register("POST", "/user/register", controllers.Register, nil)
+	register("POST", "/user/login", controllers.Login, nil)
 }
 
 // NewRouter create one 'mux.NewRouter()' and register handle funcs.
