@@ -137,7 +137,7 @@ You can use context to ensure the gorutine context will end at the same time. If
 ```go
 ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 // ensure cancle function will be executed
-defer cancle() 
+defer cancle()
 client, err := mongo.Connect(ctx, clientOptions())
 if err != nil {
 	l.Fatal(err) // l for logrus
@@ -169,5 +169,148 @@ func GenerateToken(user *models.User) (string, error) {
 		"user_name": user.UserName,
 	})
 	return token.SignedString(secret)
+}
+```
+
+### get remote API
+
+#### decode plan
+
+Before I do some service, I should to preview other server's API document like [coinmarketcap's dev docs](https://coinmarketcap.com/api/documentation/v1/). And try to decode json data form their server. You can see the example data from coinmarketcap website.
+
+```json
+{
+    "status": {
+		...
+    },
+    "data": [
+        {
+			...
+            "quote": {
+                "USD": {
+					"price": 5050.98607739,
+					...
+                }
+            }
+        }
+    ]
+}
+```
+
+There is two way to decode json, by "to struct" or "to map".
+
+##### json to struct
+
+```go
+type coinmarketcapStatus struct {
+	Timestamp string `json:"timestamp"`
+}
+
+type coinmarketcapUSD struct {
+	Price float64 `json:"price"`
+}
+
+type coinmarketcapQuote struct {
+	USD coinmarketcapUSD `json:"USD"`
+}
+
+type coinmarketcapData struct {
+	Quote coinmarketcapQuote `json:"quote"`
+}
+
+type coinmarketcap struct {
+	Status coinmarketcapStatus `json:"status"`
+	Data   []coinmarketcapData `json:"data"`
+}
+
+func byUnmarshal(str string) float64 {
+	var coin coinmarketcap
+	err := json.Unmarshal([]byte(str), &coin)
+	if err != nil {
+		fmt.Errorf("Can not decode data: %v\n", err)
+	}
+	return coin.Data[0].Quote.USD.Price
+}
+```
+
+##### json to map
+
+```go
+func byJSONToMap(str string) float64 {
+	var mapResult map[string]interface{}
+	err := json.Unmarshal([]byte(str), &mapResult)
+	if err != nil {
+		panic(err)
+	}
+	USD, _ := mapResult["data"].([]interface{})[0].(map[string]interface{})["quote"].(map[string]interface{})["USD"].(map[string]interface{})["price"]
+	return USD.(float64)
+}
+```
+
+And we can benchmark these code by using `go test -bench=.`
+
+```go
+func BenchmarkByUnmarshal(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		byUnmarshal(jsonStr)
+	}
+}
+
+func BenchmarkByJSONToMap(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		byJSONToMap(jsonStr)
+	}
+}
+BenchmarkByUnmarshal-4            141256             10535 ns/op
+BenchmarkByJSONToMap-4            100056             20537 ns/op
+PASS
+ok      mondb_practice  4.076s
+```
+
+Finally you can see use "to struct" may write more code to define the data structure but use less time. So I deside use this plan to decode.
+
+#### several source
+
+We can call several API to get current price, and we can use smarter way to get these. So I choose factory method pattern to let the thing easier If I add more source.
+
+We can write "abstract class" in `remote/abstract.go` like this.
+
+```go
+type Response interface {
+	GetUSD() float64
+}
+
+type responseAttribute struct {
+	usd float64
+}
+
+type responseFactory interface {
+	Create(string) (Response, error)
+}
+```
+
+Then implement a "sub class". 
+
+```go
+type CoinMarketCapFactory struct{}
+
+func (CoinMarketCapFactory) Create(str string) (Response, error) {
+	var cmc coinmarketcapResponse
+	err := json.Unmarshal([]byte(str), &cmc)
+	if err != nil {
+		return nil, err
+	}
+	return &coinMarketCap{
+		responseAttribute: &responseAttribute{
+			usd: cmc.Data[0].Quote.USD.Price,
+		},
+	}, nil
+}
+
+type coinMarketCap struct {
+	*responseAttribute
+}
+func (cmc coinMarketCap) GetUSD() float64 {
+	return cmc.usd
 }
 ```
