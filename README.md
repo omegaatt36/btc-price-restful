@@ -10,6 +10,10 @@ location: Taipei
 
 # BTC/USE price RESTful server based on golang
 
+[![CodeFactor](https://www.codefactor.io/repository/github/omegaatt36/btc-price-restful/badge)](https://www.codefactor.io/repository/github/omegaatt36/btc-price-restful)
+[![Go Report Card](https://goreportcard.com/badge/github.com/omegaatt36/btc-price-restful)](https://goreportcard.com/report/github.com/omegaatt36/btc-price-restful)
+[![License](https://img.shields.io/github/license/omegaatt36/btc-price-restful)](/LICENSE)
+
 ## demand analysis
 
 ### required
@@ -289,7 +293,7 @@ type responseFactory interface {
 }
 ```
 
-Then implement a "sub class". 
+Then implement a "sub class".
 
 ```go
 type CoinMarketCapFactory struct{}
@@ -312,5 +316,27 @@ type coinMarketCap struct {
 }
 func (cmc coinMarketCap) GetUSD() float64 {
 	return cmc.usd
+}
+```
+
+#### try to get one source result
+
+We can refactor the API to get latest data. If you want to see more, can review `remote/coinmarketcap.go`
+
+```go
+type API interface {
+	GetUSD() float64
+	GetSourceName() string
+	GetLastestID() (primitive.ObjectID, error)
+	CallRemote() error
+	InsertDB() error
+}
+
+type responseAttribute struct {
+	sourceName string
+	usd        float64
+	timestamp  string
+	latestID   primitive.ObjectID
+	authKey    string
 }
 ```

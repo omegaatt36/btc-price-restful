@@ -12,7 +12,7 @@ import (
 const (
 	database = "BTC_Price"
 	// CollectionPic a collection name for CRU pic
-	CollectionPic = "prices"
+	CollectionPrice = "prices"
 	// CollectionUser a collection name for CR user
 	CollectionUser = "users"
 )

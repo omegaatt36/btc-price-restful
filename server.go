@@ -45,7 +45,6 @@ func main() {
 		Addr:    fmt.Sprintf(":%s", port),
 		Handler: n,
 	}
-
 	logrus.Println(fmt.Sprintf("Run the web server at :%s", port))
 	logrus.Fatal(server.ListenAndServe())
 }
