@@ -16,7 +16,8 @@
         </li>
       </ul>
       <br>{{msg}}</br>
-      <button @click="handlegetLatestPrice">取得最新價格</button>
+      <button @click="handlegetLatestPrice">取得選擇的最新價格</button>
+      <button @click="handlegetLatestAllPrice">取得全部最新價格</button>
       <ul>
         <li v-for="(item, index) in priceData">
            {{ item.source }} <br/>USD : {{ item.price }} <br/>last_update: {{ item.timestamp }}
@@ -83,6 +84,26 @@
                         }
                     });
                     }
+          },
+          handlegetLatestAllPrice: function() {
+            fetch("http://localhost:8080/getLatestAllPrice", {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization":this.auth
+            }
+            })
+            .then(res => {
+                return res.json();
+            })
+            .then(result => {
+                if (result.res == "success") {
+                console.log(result.data);
+                this.priceData = result.data;
+                } else {
+                this.msg = result.msg;
+                }
+            });
           }
         }
       });
