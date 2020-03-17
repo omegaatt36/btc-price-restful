@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -50,6 +51,8 @@ func increaseQueryLimit(userName string) {
 func Register(w http.ResponseWriter, r *http.Request) {
 	var user models.User
 	err := json.NewDecoder(r.Body).Decode(&user)
+	body, _ := ioutil.ReadAll(r.Body)
+	logrus.Info(string(body))
 	if err != nil || user.UserName == "" || user.Password == "" {
 		utility.ResponseWithJSON(w, http.StatusBadRequest, utility.Response{Message: "bad param", Result: utility.ResFailed})
 		return

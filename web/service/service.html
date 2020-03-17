@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>btc-price-restful</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="root" style="width:80%; line-height:30px;margin:auto;">
+      <button @click="handleGetServiceMap">取得可以 call 的 API</button>
+    
+      <ul>
+        <li v-for="(item, index) in group">
+          <input type="checkbox" v-model="source" :value="item" /><label>{{ item }}</label>
+        </li>
+      </ul>
+      <br>{{msg}}</br>
+      <button @click="handlegetLatestPrice">取得最新價格</button>
+      <ul>
+        <li v-for="(item, index) in priceData">
+           {{ item.source }} <br/>USD : {{ item.price }} <br/>last_update: {{ item.timestamp }}
+        </li>
+      </ul>
+    </div>
+    <script>
+      new Vue({
+        el: "#root",
+        data: {
+          group: [],
+          source: [],
+          priceData:{},
+          auth: "",
+          msg: "請先獲取可用資源再拿最新價格",
+        },
+        mounted: function(){
+          let url = location.href;
+          let temp = url.split("?");
+          this.auth = temp[1];
+        },
+        methods: {
+          handleGetServiceMap: function() {
+            fetch("http://localhost:8080/getServiceMap", {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization":this.auth
+              }
+            })
+              .then(res => {
+                return res.json();
+              })
+              .then(result => {
+                if (result.res == "success") {
+                  console.log(result.data);
+                  this.group = result.data;
+                } else {
+                  this.msg = result.msg;
+                }
+              });
+          },
+          handlegetLatestPrice: function() {
+              if (this.source.length == 0 ){
+                  this.msg = "請先至少選擇一個來源";
+              } else{
+                    let s = this.source.join(",");
+                    fetch("http://localhost:8080/getLatestPrice/"+s, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization":this.auth
+                    }
+                    })
+                    .then(res => {
+                        return res.json();
+                    })
+                    .then(result => {
+                        if (result.res == "success") {
+                        console.log(result.data);
+                        this.priceData = result.data;
+                        } else {
+                        this.msg = result.msg;
+                        }
+                    });
+                    }
+          }
+        }
+      });
+    </script>
+  </body>
+</html>
