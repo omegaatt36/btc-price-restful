@@ -10,17 +10,19 @@ import (
 )
 
 const (
-	database = "BTC_Price"
-	// CollectionPic a collection name for CRU pic
+	database = "btcPrice"
+	// CollectionPrice a collection name for CRU pic
 	CollectionPrice = "prices"
 	// CollectionUser a collection name for CR user
 	CollectionUser = "users"
+	// CollectionLatistedID a collection name for foreign key(?) for prices
+	CollectionLatistedID = "latestID"
 )
 
 var client *mongo.Client
 
-// SetClint initialize client
-func SetClint(c *mongo.Client) {
+// SetMongoClint initialize client
+func SetMongoClint(c *mongo.Client) {
 	// can be more explicitly
 	if client == nil {
 		client = c // <--- NOT THREAD SAFE

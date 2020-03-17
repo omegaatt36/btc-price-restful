@@ -340,3 +340,41 @@ type responseAttribute struct {
 	authKey    string
 }
 ```
+
+#### ticker
+
+Finally in this part, we can hide the personal auth key into `APIconf.json` like this. 
+
+```json
+{
+    "sourceName": {
+        "auth":"auth token",
+        "delay" : 300
+    }
+}
+```
+
+Then make ticker to call API automatically.
+
+```go
+func runTicker(api API) {
+	name := api.GetSourceName()
+	d := time.Duration(time.Second * time.Duration(apiConfigs[name].Delay))
+	ticker := time.NewTicker(d)
+	defer ticker.Stop()
+	for {
+		<-ticker.C
+		err := api.CallRemote()
+		if err != nil {
+			logrus.Info(err.Error())
+			continue
+		}
+		err = api.InsertDB()
+		if err != nil {
+			logrus.Info(err.Error())
+			continue
+		}
+		logrus.Debug("%s get new data", name)
+	}
+}
+```
