@@ -15,7 +15,7 @@ func TestSetClint(t *testing.T) {
 		log.Fatal(err)
 	}
 	defer got.Disconnect(context.TODO())
-	SetClint(got)
+	SetMongoClint(got)
 	if !reflect.DeepEqual(got, client) {
 		t.Errorf("SetClint() got = %v, want %v", got, client)
 	}

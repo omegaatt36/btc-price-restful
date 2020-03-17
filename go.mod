@@ -6,6 +6,7 @@ require (
 	github.com/appleboy/gofight v2.0.0+incompatible
 	github.com/buger/jsonparser v0.0.0-20191204142016-1a29609e0929 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
+	github.com/garyburd/redigo v1.6.0
 	github.com/gin-gonic/gin v1.5.0 // indirect
 	github.com/gorilla/mux v1.7.4
 	github.com/labstack/echo v3.3.10+incompatible // indirect
