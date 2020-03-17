@@ -44,7 +44,7 @@ func InitAPIs() {
 	cmcFactory := CoinMarketCapFactory{}
 	cmcConf, ok := apiConfigs[sourceNameCoinMarketCap]
 	if !ok {
-		logrus.Warning("can't find key:", sourceNameCoinMarketCap, ", please check auth.json")
+		logrus.Warning("can't find key:", sourceNameCoinMarketCap, ", please check APIconfig.json")
 	} else {
 		cmc, _ := cmcFactory.Create(cmcConf.Auth)
 		apis = append(apis, cmc)
@@ -53,10 +53,18 @@ func InitAPIs() {
 	cgFactory := CoinGeckoFactory{}
 	cgConf, ok := apiConfigs[sourceNameCoinGecko]
 	if !ok {
-		logrus.Warning("can't find key:", sourceNameCoinGecko, ", please check auth.json")
+		logrus.Warning("can't find key:", sourceNameCoinGecko, ", please check APIconfig.json")
 	} else {
 		cg, _ := cgFactory.Create(cgConf.Auth)
 		apis = append(apis, cg)
+	}
+	cdFactory := CoinDeskFactory{}
+	cdConf, ok := apiConfigs[sourceNameCoinDesk]
+	if !ok {
+		logrus.Warning("can't find key:", sourceNameCoinDesk, ", please check APIconfig.json")
+	} else {
+		cd, _ := cdFactory.Create(cdConf.Auth)
+		apis = append(apis, cd)
 	}
 
 	apis.firstCall()

@@ -44,16 +44,22 @@ func main() {
 
 	/* init remote API */
 	file, err := os.Open("APIconf.json")
-	defer file.Close()
 	if err != nil {
 		l.Info("can't open local APIconfig.json file, make sure the file has been created.")
-		l.Fatal(err)
+		defaultFile, err := os.Open("APIconfDefault.json")
+		if err != nil {
+			file.Close()
+			l.Fatal(err)
+		}
+		file.Close()
+		file = defaultFile
 	}
+	defer file.Close()
 	if err = remote.ParseConfig(file); err != nil {
 		l.Info("can't parse local APIconfig.json file")
 		l.Fatal(err)
 	}
-	// remote.InitAPIs()
+	remote.InitAPIs()
 
 	/* init router */
 	mux := routes.NewRouter()

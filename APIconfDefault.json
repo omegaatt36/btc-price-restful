@@ -1,0 +1,10 @@
+{
+    "CoinGecko": {
+        "auth":"",
+        "delay" : 60
+    },
+    "CoinDesk": {
+        "auth":"",
+        "delay" : 120
+    }
+}
