@@ -39,7 +39,7 @@ func (api responseAttribute) InitFormRedis() error {
 	if err != nil {
 		return err
 	}
-	id, err := primitive.ObjectIDFromHex(hexID)
+	id, err := primitive.ObjectIDFromHex(hexID.(string))
 	if err != nil {
 		return err
 	}
@@ -48,18 +48,19 @@ func (api responseAttribute) InitFormRedis() error {
 }
 
 func (api responseAttribute) InsertDB() error {
+	name := api.sourceName
 	var priceInfo models.Price
 	priceInfo.ID = primitive.NewObjectID()
 	priceInfo.Price = api.usd
-	priceInfo.Source = api.sourceName
+	priceInfo.Source = name
 	priceInfo.Timestamp = api.timestamp
 	_, err := db.Create(db.CollectionPrice, priceInfo)
 	if err != nil {
-		logrus.Infof("%s db insert latest price info error", api.sourceName)
+		logrus.Infof("%s db insert latest price info error", name)
 		return err
 	}
 	b, _ := json.Marshal(priceInfo)
-	db.RedisSet(fmt.Sprintf("latestAPI:%s", b), priceInfo.ID.Hex())
+	db.RedisSet(fmt.Sprintf("latestAPI:%s", name), string(b))
 	api.latestID = priceInfo.ID
 	return nil
 }

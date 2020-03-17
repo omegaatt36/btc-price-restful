@@ -3,20 +3,47 @@ package controllers
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"BTC-price-restful/auth"
 	"BTC-price-restful/db"
 	"BTC-price-restful/models"
 	"BTC-price-restful/utility"
 
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
+
+const queryLimit = 500
 
 func isUserExist(userName string) bool {
 	if singleResult := db.FindOne(db.CollectionUser, models.User{UserName: userName}); singleResult.Err() != nil {
 		return false
 	}
 	return true
+}
+
+func checkQueryLimit(userName string) bool {
+	key := db.NSUserQueryTimes + ":" + userName
+	queryTimes, err := db.RedisGet(key)
+	if err != nil {
+		db.RedisSet(key, 0)
+		return true
+	}
+	qt, _ := strconv.Atoi(queryTimes.(string))
+	if qt >= 500 {
+		return false
+	}
+	return true
+}
+
+func increaseQueryLimit(userName string) {
+	key := db.NSUserQueryTimes + ":" + userName
+	err := db.RedisIncr(key)
+	if err != nil {
+		logrus.Infof("%s query can't increase", userName)
+	}
+
 }
 
 // Register name & cryp(pwd) into DB
@@ -57,7 +84,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if singleResult.Err() != nil {
 		utility.ResponseWithJSON(w, http.StatusBadRequest, utility.Response{Message: "user not exist", Result: utility.ResFailed})
 		return
-
 	}
 	var userInDB models.User
 	err = singleResult.Decode(&userInDB)

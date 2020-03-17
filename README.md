@@ -378,3 +378,39 @@ func runTicker(api API) {
 	}
 }
 ```
+
+### service
+
+Make two handler in controllers and hook in routers
+
+```go
+func GetServiceMap(w http.ResponseWriter, r *http.Request) {
+	keys, _ := db.RedisKeysByNameSpace(db.NSLatestAPI)
+	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: keys})
+}
+func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
+	result := make(map[string]models.Price)
+	services := strings.Split(mux.Vars(r)["service"], ",")
+	for _, service := range services {
+		var price models.Price
+		result[service] = price
+
+	}
+	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: result})
+}
+```
+
+### auth middleware
+
+make a middleware to verify user token before processing service.
+
+```go
+register("GET", "/getServiceMap", controllers.GetServiceMap, auth.TokenMiddleware)
+register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, auth.TokenMiddleware)
+
+if route.Middleware == nil {
+	r.HandleFunc(route.Pattern, route.Handler).Methods(route.Method)
+} else {
+	r.Handle(route.Pattern, route.Middleware(route.Handler)).Methods(route.Method)
+}
+```
