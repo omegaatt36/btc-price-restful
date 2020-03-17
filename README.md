@@ -378,3 +378,24 @@ func runTicker(api API) {
 	}
 }
 ```
+
+### service
+
+Make two handler in controllers and hook in routers
+
+```go
+func GetServiceMap(w http.ResponseWriter, r *http.Request) {
+	keys, _ := db.RedisKeysByNameSpace(db.NSLatestAPI)
+	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: keys})
+}
+func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
+	result := make(map[string]models.Price)
+	services := strings.Split(mux.Vars(r)["service"], ",")
+	for _, service := range services {
+		var price models.Price
+		result[service] = price
+
+	}
+	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: result})
+}
+```

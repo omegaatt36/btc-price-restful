@@ -19,6 +19,9 @@ var routes []route
 func init() {
 	register("GET", "/", controllers.GetDefault, nil)
 
+	register("GET", "/getServiceMap", controllers.GetServiceMap, nil)
+	register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, nil)
+
 	register("POST", "/user/register", controllers.Register, nil)
 	register("POST", "/user/login", controllers.Login, nil)
 }
