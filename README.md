@@ -16,7 +16,9 @@ location: Taipei
 
 ## How to use
 
-First you can try the simple web-client at `/web/index.html`
+All API docuument was placed in the [`docs/API.md`](docs/API.md).
+
+Or you can try the simple web-client at `/web/index.html`
 
 ![](web/login.PNG)
 

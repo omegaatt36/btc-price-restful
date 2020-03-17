@@ -22,6 +22,7 @@ func init() {
 
 	register("GET", "/getServiceMap", controllers.GetServiceMap, auth.TokenMiddleware)
 	register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, auth.TokenMiddleware)
+	register("GET", "/getLatestAllPrice", controllers.GetLatestAllPrice, auth.TokenMiddleware)
 
 	register("POST", "/user/register", controllers.Register, nil)
 	register("POST", "/user/login", controllers.Login, nil)
