@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"net/http"
 	"net/url"
-	"time"
 
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -14,7 +13,6 @@ import (
 // CoinMarketCapFactory is coinMarketCap's factory calss(?)
 type CoinMarketCapFactory struct{}
 
-// SourceNameCoinMarketCap is a tag let other class can direct read without creat API
 const sourceNameCoinMarketCap = "CoinMarketCap"
 
 // Create return data after json data which form https://coinmarketcap.com/ be decoded
@@ -55,22 +53,22 @@ func (cmc coinMarketCap) CallRemote() error {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		logrus.Info("Error sending request to server")
+		logrus.Infof("Error sending request to server %s", cmc.sourceName)
 		return err
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode != http.StatusOK {
-		logrus.Info("coinmarketcap return status code not equal 200")
+		logrus.Infof("%s return status code not equal 200", cmc.sourceName)
 		return err
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logrus.Info("body read error")
+		logrus.Infof("%s body read error", cmc.sourceName)
 		return err
 	}
 	err = cmc.setValues(string(respBody))
 	if err != nil {
-		logrus.Info("json parse error")
+		logrus.Infof("%s json parse error", cmc.sourceName)
 		return err
 	}
 	return nil
@@ -83,13 +81,13 @@ func (cmc *coinMarketCap) setValues(str string) error {
 		return err
 	}
 	USD := cmcRes.Data[0].Quote.USD
-	t, err := time.Parse(time.RFC3339, USD.Timestamp)
-	if err != nil {
-		logrus.Debug("time parse error")
-		return err
-	}
+	// t, err := time.Parse(time.RFC3339, USD.Timestamp)
+	// if err != nil {
+	// 	logrus.Debug("time parse error")
+	// 	return err
+	// }
 	cmc.usd = USD.Price
-	cmc.timestamp = t.Format("2 Jan 2006 15:04:05")
+	cmc.timestamp = USD.Timestamp
 
 	return nil
 }

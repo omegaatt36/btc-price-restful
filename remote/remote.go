@@ -39,14 +39,24 @@ func ParseConfig(file *os.File) error {
 // InitAPIs init all remote API and get first
 // If fist call failed, will get latest id from redis
 func InitAPIs() {
-	cmcFactory := CoinMarketCapFactory{}
 	apis := make(apiSet, 0)
-	value, ok := apiConfigs[sourceNameCoinMarketCap]
+
+	cmcFactory := CoinMarketCapFactory{}
+	cmcConf, ok := apiConfigs[sourceNameCoinMarketCap]
 	if !ok {
 		logrus.Warning("can't find key:", sourceNameCoinMarketCap, ", please check auth.json")
 	} else {
-		cmc, _ := cmcFactory.Create(value.Auth)
+		cmc, _ := cmcFactory.Create(cmcConf.Auth)
 		apis = append(apis, cmc)
+	}
+
+	cgFactory := CoinGeckoFactory{}
+	cgConf, ok := apiConfigs[sourceNameCoinGecko]
+	if !ok {
+		logrus.Warning("can't find key:", sourceNameCoinGecko, ", please check auth.json")
+	} else {
+		cg, _ := cgFactory.Create(cgConf.Auth)
+		apis = append(apis, cg)
 	}
 
 	apis.firstCall()

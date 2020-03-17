@@ -52,7 +52,7 @@ func main() {
 		l.Info("can't parse local APIconfig.json file")
 		l.Fatal(err)
 	}
-	// remote.InitAPIs()
+	remote.InitAPIs()
 
 	/* init router */
 	mux := routes.NewRouter()
