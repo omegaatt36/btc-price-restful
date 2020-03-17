@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"BTC-price-restful/auth"
 	"BTC-price-restful/controllers"
 	"net/http"
 
@@ -19,8 +20,8 @@ var routes []route
 func init() {
 	register("GET", "/", controllers.GetDefault, nil)
 
-	register("GET", "/getServiceMap", controllers.GetServiceMap, nil)
-	register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, nil)
+	register("GET", "/getServiceMap", controllers.GetServiceMap, auth.TokenMiddleware)
+	register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, auth.TokenMiddleware)
 
 	register("POST", "/user/register", controllers.Register, nil)
 	register("POST", "/user/login", controllers.Login, nil)

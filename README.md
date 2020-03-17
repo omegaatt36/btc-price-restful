@@ -399,3 +399,18 @@ func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
 	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: result})
 }
 ```
+
+### auth middleware
+
+make a middleware to verify user token before processing service.
+
+```go
+register("GET", "/getServiceMap", controllers.GetServiceMap, auth.TokenMiddleware)
+register("GET", "/getLatestPrice/{service}", controllers.GetLatestPrice, auth.TokenMiddleware)
+
+if route.Middleware == nil {
+	r.HandleFunc(route.Pattern, route.Handler).Methods(route.Method)
+} else {
+	r.Handle(route.Pattern, route.Middleware(route.Handler)).Methods(route.Method)
+}
+```

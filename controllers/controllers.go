@@ -20,16 +20,27 @@ func GetDefault(w http.ResponseWriter, r *http.Request) {
 
 // GetServiceMap response all active service
 func GetServiceMap(w http.ResponseWriter, r *http.Request) {
+	userName := r.Header.Get("userName")
+	if !checkQueryLimit(userName) {
+		utility.ResponseWithJSON(w, http.StatusForbidden, utility.Response{Message: "over the query limit", Result: utility.ResFailed})
+		return
+	}
 	keys, err := db.RedisKeysByNameSpace(db.NSLatestAPI)
 	if err != nil {
 		utility.ResponseWithJSON(w, http.StatusInternalServerError, utility.Response{Message: "no active service", Result: utility.ResFailed})
 		return
 	}
 	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: keys})
+	increaseQueryLimit(userName)
 }
 
 // GetLatestPrice response latest price which is active from db/redis
 func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
+	userName := r.Header.Get("userName")
+	if !checkQueryLimit(userName) {
+		utility.ResponseWithJSON(w, http.StatusForbidden, utility.Response{Message: "over the query limit", Result: utility.ResFailed})
+		return
+	}
 	result := make(map[string]models.Price)
 	services := strings.Split(mux.Vars(r)["service"], ",")
 	for _, service := range services {
@@ -39,7 +50,7 @@ func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		var price models.Price
-		err = json.Unmarshal([]byte(value), &price)
+		err = json.Unmarshal([]byte(value.(string)), &price)
 		if err != nil {
 			logrus.Infof("json decode error %s", value)
 			continue
@@ -47,11 +58,11 @@ func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
 		if _, ok := result[service]; !ok {
 			result[service] = price
 		}
-
 	}
 	if len(result) == 0 {
 		utility.ResponseWithJSON(w, http.StatusBadRequest, utility.Response{Message: "no active service or service not exsit", Result: utility.ResFailed})
 		return
 	}
 	utility.ResponseWithJSON(w, http.StatusOK, utility.Response{Result: utility.ResSuccess, Data: result})
+	increaseQueryLimit(userName)
 }

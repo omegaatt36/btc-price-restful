@@ -39,7 +39,7 @@ func (api responseAttribute) InitFormRedis() error {
 	if err != nil {
 		return err
 	}
-	id, err := primitive.ObjectIDFromHex(hexID)
+	id, err := primitive.ObjectIDFromHex(hexID.(string))
 	if err != nil {
 		return err
 	}
