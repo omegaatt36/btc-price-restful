@@ -26,6 +26,8 @@ type Response struct {
 func ResponseWithJSON(response http.ResponseWriter, code int, payload interface{}) {
 	result, _ := json.Marshal(payload)
 	response.Header().Set("Content-Type", "application/json")
+	response.Header().Set("Access-Control-Allow-Origin", "*")
+	response.Header().Set("Access-Control-Allow-Credentials", "true")
 	response.WriteHeader(code)
 	response.Write(result)
 }

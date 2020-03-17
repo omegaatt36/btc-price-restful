@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>btc-price-restful</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  </head>
+  <body>
+    <div id="root" style="width:20%; line-height:30px;margin:auto;">
+      username:<br />
+      <input v-model="username" /><br />
+      password:<br />
+      <input v-model="password" /><br />
+      <button @click="handleLogin">登入</button>
+      <button @click="handleRegister">註冊</button><br />
+      <br>{{msg}}</br>
+    </div>
+    <script>
+      new Vue({
+        el: "#root",
+        data: {
+          username: "",
+          password: "",
+          msg: "請先註冊再登入"
+        },
+        methods: {
+          handleLogin: function() {
+            const uri = "http://localhost:8080/user/login";
+            fetch(uri, {
+              method: "POST",
+              body: JSON.stringify({
+                UserName: this.username,
+                Password: this.password
+              }),
+              headers: {
+                "Content-Type": "application/json"
+              }
+            })
+              .then(res => {
+                return res.json();
+              })
+              .then(result => {
+                if (result.res == "success") {
+                  window.location.assign("service/service.html?"+result.data.token);
+                } else {
+                  this.msg = result.msg;
+                }
+              });
+          },
+          handleRegister: function() {
+            const uri = "http://localhost:8080/user/register";
+            fetch(uri, {
+              method: "POST",
+              body: JSON.stringify({
+                UserName: this.username,
+                Password: this.password
+              }),
+              headers: {
+                "Content-Type": "application/json"
+              }
+            })
+              .then(res => {
+                return res.json();
+              })
+              .then(result => {
+                if (result.res == "success") {
+                    this.msg = "註冊成功，請登入";
+                } else {
+                    this.msg = result.msg;
+                }
+              });
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

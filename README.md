@@ -14,6 +14,16 @@ location: Taipei
 [![Go Report Card](https://goreportcard.com/badge/github.com/omegaatt36/btc-price-restful)](https://goreportcard.com/report/github.com/omegaatt36/btc-price-restful)
 [![License](https://img.shields.io/github/license/omegaatt36/btc-price-restful)](/LICENSE)
 
+## How to use
+
+First you can try the simple web-client at `/web/index.html`
+
+![](web/login.PNG)
+
+Then after register and login, you can easier to use this api server like this.
+
+![](web/service.PNG)
+
 ## demand analysis
 
 ### required
@@ -413,4 +423,15 @@ if route.Middleware == nil {
 } else {
 	r.Handle(route.Pattern, route.Middleware(route.Handler)).Methods(route.Method)
 }
+```
+
+### CORS
+
+Finally you must add CORS handler if you want to other people can call you api in browser.
+
+```go
+allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
+allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
+n.UseHandler(handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(mux))
 ```

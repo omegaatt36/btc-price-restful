@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/garyburd/redigo/redis"
+	"github.com/gorilla/handlers"
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/sirupsen/logrus"
 	"github.com/urfave/negroni"
@@ -52,7 +53,7 @@ func main() {
 		l.Info("can't parse local APIconfig.json file")
 		l.Fatal(err)
 	}
-	remote.InitAPIs()
+	// remote.InitAPIs()
 
 	/* init router */
 	mux := routes.NewRouter()
@@ -60,7 +61,10 @@ func main() {
 	/* use logrus as middleware logger */
 	n := negroni.New()
 	n.Use(negronilogrus.NewMiddlewareFromLogger(l, "web"))
-	n.UseHandler(mux)
+	allowedHeaders := handlers.AllowedHeaders([]string{"Content-Type", "Authorization"})
+	allowedOrigins := handlers.AllowedOrigins([]string{"*"})
+	allowedMethods := handlers.AllowedMethods([]string{"GET", "POST", "OPTIONS"})
+	n.UseHandler(handlers.CORS(allowedHeaders, allowedOrigins, allowedMethods)(mux))
 
 	/* Create the main server object */
 	server := http.Server{
