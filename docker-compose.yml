@@ -1,0 +1,23 @@
+version: "3.7"
+services:
+    app:
+        build: .
+        container_name: app
+        ports:
+          - 8080:8080
+        depends_on:
+          - mongodb
+          - redisdb
+        environment:
+          profile: prod
+    mongodb:
+        image: mongo:4.2.2
+        container_name: mongodb
+    redisdb:
+        image: redis:latest
+        container_name: redisdb
+        restart: always 
+        ports:
+        - "6379:6379"
+        volumes:
+        - ./data:/data

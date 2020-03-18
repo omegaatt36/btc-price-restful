@@ -42,7 +42,7 @@ func main() {
 	defer cancle()
 	_, err = redisClint.Ping(ctx).Result()
 	if err != nil {
-		l.Fatal("Connect to redis error", err)
+		l.Fatal("Connect to redis error:", err)
 	}
 	db.SetRedisClint(redisClint)
 	defer redisClint.Close()
@@ -87,7 +87,7 @@ func main() {
 }
 
 func mongoClientOptions() *options.ClientOptions {
-	host := "db"
+	host := "mongodb"
 	if os.Getenv("profile") != "prod" {
 		host = "localhost"
 	}
@@ -97,7 +97,7 @@ func mongoClientOptions() *options.ClientOptions {
 }
 
 func redisClientOptions() *redis.Options {
-	host := "db"
+	host := "redisdb"
 	if os.Getenv("profile") != "prod" {
 		host = "localhost"
 	}

@@ -14,9 +14,26 @@ location: Taipei
 [![Go Report Card](https://goreportcard.com/badge/github.com/omegaatt36/btc-price-restful)](https://goreportcard.com/report/github.com/omegaatt36/btc-price-restful)
 [![License](https://img.shields.io/github/license/omegaatt36/btc-price-restful)](/LICENSE)
 
+## Feature
+
+- A RESTful  web-API server to get BTC/USD
+- Based on golang
+- Traffic control by each user have 5000 query times
+- User can choose all sources or get active sources
+- Use mongo db to save data for make report chart (todo)
+- use redis as caching system for descrease latency
+
 ## How to use
 
-All API docuument was placed in the [`docs/API.md`](docs/API.md).
+### using docker
+
+You can type `docker-compose up` in cli. If mongo and redis are ready to work, the server is ready for operation.
+
+Or if you env have both of mongo and redis, you can build image using Dockerfile.
+
+### check it work
+
+All API docuument was placed in the [`docs/API.md`](docs/API.md). You can use `POSTMAN` of somthing to call apis.
 
 Or you can try the simple web-client at `/web/index.html`
 
