@@ -3,6 +3,7 @@ module BTC-price-restful
 go 1.14
 
 require (
+	github.com/alicebob/miniredis/v2 v2.11.3
 	github.com/appleboy/gofight/v2 v2.1.2
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/go-redis/redis/v8 v8.0.0-alpha.1
