@@ -19,9 +19,10 @@ location: Taipei
 - A RESTful  web-API server to get BTC/USD
 - Based on golang
 - Traffic control by each user have 5000 query times
+- Easier to extend remote source by use factory parttern
 - User can choose all sources or get active sources
 - Use mongo db to save data for make report chart (todo)
-- use redis as caching system for descrease latency
+- Use redis as caching system for descrease latency
 
 ## How to use
 
@@ -100,7 +101,7 @@ If time permits, an caching mechanism will be added redis based
 
 ![](uml/sequence/get_latest_price_redis.png)
 
-## intro
+## Course
 
 ### http router
 
