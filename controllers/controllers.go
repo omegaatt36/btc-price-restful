@@ -50,7 +50,7 @@ func GetLatestPrice(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		var price models.Price
-		err = json.Unmarshal([]byte(value.(string)), &price)
+		err = json.Unmarshal([]byte(value), &price)
 		if err != nil {
 			logrus.Infof("json decode error %s", value)
 			continue
@@ -87,7 +87,7 @@ func GetLatestAllPrice(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		var price models.Price
-		err = json.Unmarshal([]byte(value.(string)), &price)
+		err = json.Unmarshal([]byte(value), &price)
 		if err != nil {
 			logrus.Infof("json decode error %s", value)
 			continue

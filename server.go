@@ -10,7 +10,7 @@ import (
 	"os"
 	"time"
 
-	"github.com/garyburd/redigo/redis"
+	"github.com/go-redis/redis/v8"
 	"github.com/gorilla/handlers"
 	negronilogrus "github.com/meatballhat/negroni-logrus"
 	"github.com/sirupsen/logrus"
@@ -30,17 +30,22 @@ func main() {
 	/* init mongo db */
 	ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancle()
-	client, err := mongo.Connect(ctx, clientOptions())
+	client, err := mongo.Connect(ctx, mongoClientOptions())
 	if err != nil {
 		l.Fatal(err)
 	}
 	db.SetMongoClint(client)
-	SetRedisClint, err := redis.Dial("tcp", "127.0.0.1:6379")
+
+	/* init redis db */
+	redisClint := redis.NewClient(redisClientOptions())
+	ctx, cancle = context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancle()
+	_, err = redisClint.Ping(ctx).Result()
 	if err != nil {
 		l.Fatal("Connect to redis error", err)
 	}
-	db.SetRedisClint(SetRedisClint)
-	defer SetRedisClint.Close()
+	db.SetRedisClint(redisClint)
+	defer redisClint.Close()
 
 	/* init remote API */
 	file, err := os.Open("APIconf.json")
@@ -81,7 +86,7 @@ func main() {
 	logrus.Fatal(server.ListenAndServe())
 }
 
-func clientOptions() *options.ClientOptions {
+func mongoClientOptions() *options.ClientOptions {
 	host := "db"
 	if os.Getenv("profile") != "prod" {
 		host = "localhost"
@@ -89,4 +94,16 @@ func clientOptions() *options.ClientOptions {
 	return options.Client().ApplyURI(
 		"mongodb://" + host + ":27017",
 	)
+}
+
+func redisClientOptions() *redis.Options {
+	host := "db"
+	if os.Getenv("profile") != "prod" {
+		host = "localhost"
+	}
+	return &redis.Options{
+		Addr:     host + ":6379",
+		Password: "",
+		DB:       0,
+	}
 }

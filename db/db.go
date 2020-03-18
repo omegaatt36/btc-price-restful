@@ -19,24 +19,24 @@ const (
 	CollectionLatistedID = "latestID"
 )
 
-var client *mongo.Client
+var mongoClient *mongo.Client
 
-// SetMongoClint initialize client
+// SetMongoClint initialize mongoClient
 func SetMongoClint(c *mongo.Client) {
 	// can be more explicitly
-	if client == nil {
-		client = c // <--- NOT THREAD SAFE
+	if mongoClient == nil {
+		mongoClient = c // <--- NOT THREAD SAFE
 	}
 }
 
 // GetCollection to get the connection for mongodb collection
 func GetCollection(collectionName string) *mongo.Collection {
-	return client.Database(database).Collection(collectionName)
+	return mongoClient.Database(database).Collection(collectionName)
 }
 
 // Create one obj into specify collection
 func Create(collectionName string, item interface{}) (*mongo.InsertOneResult, error) {
-	collection := client.Database(database).Collection(collectionName)
+	collection := mongoClient.Database(database).Collection(collectionName)
 	ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancle()
 	return collection.InsertOne(ctx, item)
@@ -45,7 +45,7 @@ func Create(collectionName string, item interface{}) (*mongo.InsertOneResult, er
 // Delete one obj from specify collection
 func Delete(collectionName string, _id primitive.ObjectID) (*mongo.DeleteResult, error) {
 	filter := bson.M{"_id": bson.M{"$eq": _id}}
-	collection := client.Database(database).Collection(collectionName)
+	collection := mongoClient.Database(database).Collection(collectionName)
 	ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancle()
 	return collection.DeleteOne(ctx, filter)
@@ -55,7 +55,7 @@ func Delete(collectionName string, _id primitive.ObjectID) (*mongo.DeleteResult,
 func Update(collectionName string, _id primitive.ObjectID, item interface{}) (*mongo.UpdateResult, error) {
 	filter := bson.M{"_id": bson.M{"$eq": _id}}
 	update := bson.M{"$set": item}
-	collection := client.Database(database).Collection(collectionName)
+	collection := mongoClient.Database(database).Collection(collectionName)
 	ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancle()
 	return collection.UpdateMany(ctx, filter, update)
@@ -63,7 +63,7 @@ func Update(collectionName string, _id primitive.ObjectID, item interface{}) (*m
 
 // FindOne find one obj from specify collection
 func FindOne(collectionName string, filter interface{}) (r *mongo.SingleResult) {
-	collection := client.Database(database).Collection(collectionName)
+	collection := mongoClient.Database(database).Collection(collectionName)
 	ctx, cancle := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancle()
 	return collection.FindOne(ctx, filter)

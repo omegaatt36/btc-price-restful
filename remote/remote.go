@@ -76,20 +76,24 @@ func InitAPIs() {
 
 func (apis apiSet) firstCall() {
 	for _, v := range apis {
-		err := v.CallRemote()
+		go firstCallAPI(v)
+	}
+}
+
+func firstCallAPI(api API) {
+	err := api.CallRemote()
+	if err != nil {
+		logrus.Info(err.Error())
+		err = api.InitFormRedis()
 		if err != nil {
 			logrus.Info(err.Error())
-			err = v.InitFormRedis()
-			if err != nil {
-				logrus.Info(err.Error())
-			}
-			continue
 		}
-		err = v.InsertDB()
-		if err != nil {
-			logrus.Info(err.Error())
-			continue
-		}
+		return
+	}
+	err = api.InsertDB()
+	if err != nil {
+		logrus.Info(err.Error())
+		return
 	}
 }
 

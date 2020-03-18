@@ -31,7 +31,7 @@ func checkQueryLimit(userName string) bool {
 		db.RedisSet(key, 0)
 		return true
 	}
-	qt, _ := strconv.Atoi(queryTimes.(string))
+	qt, _ := strconv.Atoi(queryTimes)
 	if qt >= 500 {
 		return false
 	}
